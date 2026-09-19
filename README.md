@@ -29,3 +29,19 @@ Features being tested:
 - Save
 
 Testing will confirm that each feature works correctly in the deployed application before promotion to the Stage phase.
+
+
+TEST Results
+
+| Feature | Result |
+|---|---|
+| Draw | Working |
+| Color |  Working  |
+| Eraser | Working   |
+| Clear |  Working  |
+| Text |  Working  |
+| Shapes |  Working  |
+| Undo |  Working  |
+| Redo |  Working  |
+| Save |  Working  |
+
