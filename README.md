@@ -11,3 +11,21 @@ Current features:
 - Shapes
 - Undo/Redo
 - Save
+
+
+## TEST Stage
+
+MeTL Whiteboard Version 1 has transitioned from the Development stage to the Test stage.
+
+Features being tested:
+- Draw
+- Color selection
+- Eraser
+- Clear board
+- Text
+- Shapes
+- Undo
+- Redo
+- Save
+
+Testing will confirm that each feature works correctly in the deployed application before promotion to the Stage phase.
