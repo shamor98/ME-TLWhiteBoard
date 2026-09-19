@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeTL Whiteboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>MeTL Whiteboard</h1>
+    <p>Interactive Drawing and Diagram Workspace</p>
+</header>
+
+<div class="toolbar">
+
+    <button id="drawBtn">Draw</button>
+
+    <label>
+        Color
+        <input type="color" id="colorPicker" value="#000000">
+    </label>
+
+    <button id="eraserBtn">Eraser</button>
+
+    <button id="textBtn">Text</button>
+
+    <select id="shapeSelect">
+        <option value="">Shapes</option>
+        <option value="rectangle">Rectangle</option>
+        <option value="circle">Circle</option>
+        <option value="line">Line</option>
+    </select>
+
+    <button id="undoBtn">Undo</button>
+    <button id="redoBtn">Redo</button>
+
+    <button id="clearBtn">Clear</button>
+
+    <button id="saveBtn">Save</button>
+
+</div>
+
+<div class="status">
+    Current Tool:
+    <strong id="currentTool">Draw</strong>
+</div>
+
+<div class="canvas-container">
+    <canvas id="whiteboard" width="1100" height="650"></canvas>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
