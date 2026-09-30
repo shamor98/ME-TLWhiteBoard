@@ -5,6 +5,7 @@ const drawBtn = document.getElementById("drawBtn");
 const eraserBtn = document.getElementById("eraserBtn");
 const textBtn = document.getElementById("textBtn");
 const selectBtn = document.getElementById("selectBtn");
+const rotateBtn = document.getElementById("rotateBtn");
 const clearBtn = document.getElementById("clearBtn");
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
@@ -713,4 +714,78 @@ imageUpload.addEventListener("change", (event) => {
     reader.readAsDataURL(file);
 
     imageUpload.value = "";
+});
+// ==============================
+// ROTATE SELECTED OBJECT 90 DEGREES
+// ==============================
+
+rotateBtn.addEventListener("click", () => {
+
+    if (!selectionReady || !selectionImage) {
+        alert("Use Select / Move to select an object first.");
+        return;
+    }
+
+    saveHistory();
+
+    // Create temporary canvas containing selected object
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = selectionWidth;
+    tempCanvas.height = selectionHeight;
+
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.putImageData(selectionImage, 0, 0);
+
+    // New dimensions after 90 degree rotation
+    const newWidth = selectionHeight;
+    const newHeight = selectionWidth;
+
+    const rotatedCanvas = document.createElement("canvas");
+    rotatedCanvas.width = newWidth;
+    rotatedCanvas.height = newHeight;
+
+    const rotatedCtx = rotatedCanvas.getContext("2d");
+
+    rotatedCtx.translate(newWidth / 2, newHeight / 2);
+    rotatedCtx.rotate(Math.PI / 2);
+
+    rotatedCtx.drawImage(
+        tempCanvas,
+        -selectionWidth / 2,
+        -selectionHeight / 2
+    );
+
+    // Keep rotation centered in same location
+    const centerX = selectionX + selectionWidth / 2;
+    const centerY = selectionY + selectionHeight / 2;
+
+    // Remove old selected area
+    ctx.fillStyle = "white";
+    ctx.fillRect(
+        selectionX,
+        selectionY,
+        selectionWidth,
+        selectionHeight
+    );
+
+    selectionWidth = newWidth;
+    selectionHeight = newHeight;
+
+    selectionX = centerX - selectionWidth / 2;
+    selectionY = centerY - selectionHeight / 2;
+
+    // Draw rotated object
+    ctx.drawImage(
+        rotatedCanvas,
+        selectionX,
+        selectionY
+    );
+
+    // Store newly rotated selection
+    selectionImage = ctx.getImageData(
+        selectionX,
+        selectionY,
+        selectionWidth,
+        selectionHeight
+    );
 });
