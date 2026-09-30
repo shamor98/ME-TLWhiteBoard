@@ -9,6 +9,8 @@ const clearBtn = document.getElementById("clearBtn");
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const saveBtn = document.getElementById("saveBtn");
+const imageBtn = document.getElementById("imageBtn");
+const imageUpload = document.getElementById("imageUpload");
 const colorPicker = document.getElementById("colorPicker");
 const shapeSelect = document.getElementById("shapeSelect");
 const currentToolDisplay = document.getElementById("currentTool");
@@ -656,4 +658,59 @@ window.addEventListener("beforeunload", autoSaveBoard);
 // Recover the last automatically saved board
 window.addEventListener("load", () => {
     setTimeout(recoverBoard, 500);
+});
+// ==============================
+// IMAGE UPLOAD
+// ==============================
+
+imageBtn.addEventListener("click", () => {
+    imageUpload.click();
+});
+
+imageUpload.addEventListener("change", (event) => {
+
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const img = new Image();
+
+        img.onload = function() {
+
+            saveHistory();
+
+            const maxWidth = 400;
+            const maxHeight = 300;
+
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = height * (maxWidth / width);
+                width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+                width = width * (maxHeight / height);
+                height = maxHeight;
+            }
+
+            const x = (canvas.width - width) / 2;
+            const y = (canvas.height - height) / 2;
+
+            ctx.drawImage(img, x, y, width, height);
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+
+    imageUpload.value = "";
 });
