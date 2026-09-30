@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 const drawBtn = document.getElementById("drawBtn");
 const eraserBtn = document.getElementById("eraserBtn");
 const textBtn = document.getElementById("textBtn");
+const selectBtn = document.getElementById("selectBtn");
 const clearBtn = document.getElementById("clearBtn");
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
@@ -19,7 +20,24 @@ let startX = 0;
 let startY = 0;
 
 let savedCanvasImage = null;
+let selectingArea = false;
+let selectionReady = false;
+let movingSelection = false;
 
+let selectionStartX = 0;
+let selectionStartY = 0;
+
+let selectionX = 0;
+let selectionY = 0;
+let selectionWidth = 0;
+let selectionHeight = 0;
+
+let selectionImage = null;
+let selectionBackground = null;
+let moveBackground = null;
+
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 let undoStack = [];
 let redoStack = [];
 
@@ -110,7 +128,11 @@ textBtn.addEventListener("click", () => {
 
 });
 
-
+// SELECT / MOVE BUTTON
+selectBtn.addEventListener("click", () => {
+    tool = "select";
+    currentToolDisplay.textContent = "Select / Move";
+});
 // SHAPE SELECTION
 shapeSelect.addEventListener("change", () => {
 
@@ -152,7 +174,52 @@ function pointerDown(event) {
 
     startX = position.x;
     startY = position.y;
+if (tool === "select") {
 
+    if (
+        selectionReady &&
+        startX >= selectionX &&
+        startX <= selectionX + selectionWidth &&
+        startY >= selectionY &&
+        startY <= selectionY + selectionHeight
+    ) {
+        movingSelection = true;
+
+        dragOffsetX = startX - selectionX;
+        dragOffsetY = startY - selectionY;
+
+        ctx.clearRect(
+            selectionX,
+            selectionY,
+            selectionWidth,
+            selectionHeight
+        );
+
+        moveBackground = ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        return;
+    }
+
+    selectingArea = true;
+    selectionReady = false;
+
+    selectionStartX = startX;
+    selectionStartY = startY;
+
+    selectionBackground = ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    return;
+}
 
     // TEXT
     if (tool === "text") {
@@ -216,7 +283,61 @@ function pointerDown(event) {
 canvas.addEventListener("pointermove", pointerMove);
 
 function pointerMove(event) {
+if (tool === "select" && selectingArea) {
+    const position = getPosition(event);
 
+    ctx.putImageData(selectionBackground, 0, 0);
+
+    const x = Math.min(selectionStartX, position.x);
+    const y = Math.min(selectionStartY, position.y);
+    const width = Math.abs(position.x - selectionStartX);
+    const height = Math.abs(position.y - selectionStartY);
+
+    selectionX = x;
+    selectionY = y;
+    selectionWidth = width;
+    selectionHeight = height;
+
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, width, height);
+    ctx.restore();
+
+    return;
+}
+if (tool === "select" && movingSelection) {
+    const position = getPosition(event);
+
+    ctx.putImageData(moveBackground, 0, 0);
+
+    selectionX = position.x - dragOffsetX;
+    selectionY = position.y - dragOffsetY;
+
+    ctx.putImageData(
+        selectionImage,
+        selectionX,
+        selectionY
+    );
+
+    return;
+}
+if (tool === "select" && movingSelection) {
+    const position = getPosition(event);
+
+    ctx.putImageData(moveBackground, 0, 0);
+
+    selectionX = position.x - dragOffsetX;
+    selectionY = position.y - dragOffsetY;
+
+    ctx.putImageData(
+        selectionImage,
+        selectionX,
+        selectionY
+    );
+
+    return;
+}
     if (!drawing) {
         return;
     }
@@ -355,7 +476,30 @@ canvas.addEventListener("pointerup", pointerUp);
 canvas.addEventListener("pointerleave", pointerUp);
 
 function pointerUp() {
+if (tool === "select" && selectingArea) {
+    selectingArea = false;
 
+    ctx.putImageData(selectionBackground, 0, 0);
+
+    if (selectionWidth > 5 && selectionHeight > 5) {
+        selectionImage = ctx.getImageData(
+            selectionX,
+            selectionY,
+            selectionWidth,
+            selectionHeight
+        );
+
+        selectionReady = true;
+    }
+
+    return;
+}
+if (tool === "select" && movingSelection) {
+    movingSelection = false;
+    moveBackground = null;
+    saveHistory();
+    return;
+}
     if (!drawing) {
         return;
     }
