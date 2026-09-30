@@ -474,3 +474,42 @@ saveBtn.addEventListener("click", () => {
     link.click();
 
 });
+
+// ===============================
+// AUTOMATIC SAVE AND RECOVERY
+// ===============================
+
+const AUTO_SAVE_KEY = "whiteboardAutoSave";
+
+function autoSaveBoard() {
+    const canvasData = canvas.toDataURL("image/png");
+    localStorage.setItem(AUTO_SAVE_KEY, canvasData);
+}
+
+function recoverBoard() {
+    const savedBoard = localStorage.getItem(AUTO_SAVE_KEY);
+
+    if (!savedBoard) {
+        return;
+    }
+
+    const img = new Image();
+
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+
+    img.src = savedBoard;
+}
+
+// Automatically save every 3 seconds
+setInterval(autoSaveBoard, 3000);
+
+// Save one last time if the page is closed or refreshed
+window.addEventListener("beforeunload", autoSaveBoard);
+
+// Recover the last automatically saved board
+window.addEventListener("load", () => {
+    setTimeout(recoverBoard, 500);
+});
